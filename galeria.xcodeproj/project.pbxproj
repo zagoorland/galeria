@@ -1,0 +1,549 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 110;
+	objects = {
+
+/* Begin PBXContainerItemProxy section */
+		C48126A030953B0A006BE0EE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C481268830953B09006BE0EE /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C481268F30953B09006BE0EE;
+			remoteInfo = galeria;
+		};
+		C48126AA30953B0A006BE0EE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C481268830953B09006BE0EE /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C481268F30953B09006BE0EE;
+			remoteInfo = galeria;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		C481269030953B09006BE0EE /* galeria.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = galeria.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C481269F30953B0A006BE0EE /* galeriaTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = galeriaTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		C48126A930953B0A006BE0EE /* galeriaUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = galeriaUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		C481269230953B09006BE0EE /* galeria */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = galeria;
+			sourceTree = "<group>";
+		};
+		C48126A230953B0A006BE0EE /* galeriaTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = galeriaTests;
+			sourceTree = "<group>";
+		};
+		C48126AC30953B0A006BE0EE /* galeriaUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = galeriaUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		C481268D30953B09006BE0EE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			files = (
+			);
+		};
+		C481269C30953B0A006BE0EE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			files = (
+			);
+		};
+		C48126A630953B0A006BE0EE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			files = (
+			);
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		C481268730953B09006BE0EE = {
+			isa = PBXGroup;
+			children = (
+				C481269230953B09006BE0EE /* galeria */,
+				C48126A230953B0A006BE0EE /* galeriaTests */,
+				C48126AC30953B0A006BE0EE /* galeriaUITests */,
+				C481269130953B09006BE0EE /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		C481269130953B09006BE0EE /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				C481269030953B09006BE0EE /* galeria.app */,
+				C481269F30953B0A006BE0EE /* galeriaTests.xctest */,
+				C48126A930953B0A006BE0EE /* galeriaUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		C481268F30953B09006BE0EE /* galeria */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C48126B130953B0A006BE0EE /* Build configuration list for PBXNativeTarget "galeria" */;
+			buildPhases = (
+				C481268C30953B09006BE0EE /* Sources */,
+				C481268D30953B09006BE0EE /* Frameworks */,
+				C481268E30953B09006BE0EE /* Resources */,
+			);
+			buildRules = (
+			);
+			fileSystemSynchronizedGroups = (
+				C481269230953B09006BE0EE /* galeria */,
+			);
+			name = galeria;
+			productName = galeria;
+			productReference = C481269030953B09006BE0EE /* galeria.app */;
+			productType = "com.apple.product-type.application";
+		};
+		C481269E30953B0A006BE0EE /* galeriaTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C48126B430953B0A006BE0EE /* Build configuration list for PBXNativeTarget "galeriaTests" */;
+			buildPhases = (
+				C481269B30953B0A006BE0EE /* Sources */,
+				C481269C30953B0A006BE0EE /* Frameworks */,
+				C481269D30953B0A006BE0EE /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				C48126A130953B0A006BE0EE /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				C48126A230953B0A006BE0EE /* galeriaTests */,
+			);
+			name = galeriaTests;
+			productName = galeriaTests;
+			productReference = C481269F30953B0A006BE0EE /* galeriaTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		C48126A830953B0A006BE0EE /* galeriaUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C48126B730953B0A006BE0EE /* Build configuration list for PBXNativeTarget "galeriaUITests" */;
+			buildPhases = (
+				C48126A530953B0A006BE0EE /* Sources */,
+				C48126A630953B0A006BE0EE /* Frameworks */,
+				C48126A730953B0A006BE0EE /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				C48126AB30953B0A006BE0EE /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				C48126AC30953B0A006BE0EE /* galeriaUITests */,
+			);
+			name = galeriaUITests;
+			productName = galeriaUITests;
+			productReference = C48126A930953B0A006BE0EE /* galeriaUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		C481268830953B09006BE0EE /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2710;
+				LastUpgradeCheck = 2710;
+				TargetAttributes = {
+					C481268F30953B09006BE0EE = {
+						CreatedOnToolsVersion = 27.1;
+					};
+					C481269E30953B0A006BE0EE = {
+						CreatedOnToolsVersion = 27.1;
+						TestTargetID = C481268F30953B09006BE0EE;
+					};
+					C48126A830953B0A006BE0EE = {
+						CreatedOnToolsVersion = 27.1;
+						TestTargetID = C481268F30953B09006BE0EE;
+					};
+				};
+			};
+			buildConfigurationList = C481268B30953B09006BE0EE /* Build configuration list for PBXProject "galeria" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = C481268730953B09006BE0EE;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = C481269130953B09006BE0EE /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				C481268F30953B09006BE0EE /* galeria */,
+				C481269E30953B0A006BE0EE /* galeriaTests */,
+				C48126A830953B0A006BE0EE /* galeriaUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		C481268E30953B09006BE0EE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			files = (
+			);
+		};
+		C481269D30953B0A006BE0EE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			files = (
+			);
+		};
+		C48126A730953B0A006BE0EE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			files = (
+			);
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		C481268C30953B09006BE0EE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			files = (
+			);
+		};
+		C481269B30953B0A006BE0EE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			files = (
+			);
+		};
+		C48126A530953B0A006BE0EE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			files = (
+			);
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		C48126A130953B0A006BE0EE /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C481268F30953B09006BE0EE /* galeria */;
+			targetProxy = C48126A030953B0A006BE0EE /* PBXContainerItemProxy */;
+		};
+		C48126AB30953B0A006BE0EE /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C481268F30953B09006BE0EE /* galeria */;
+			targetProxy = C48126AA30953B0A006BE0EE /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		C48126AF30953B0A006BE0EE /* Debug configuration for PBXProject "galeria" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 4BRN73FCD8;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.6;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		C48126B030953B0A006BE0EE /* Release configuration for PBXProject "galeria" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 4BRN73FCD8;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.6;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		C48126B230953B0A006BE0EE /* Debug configuration for PBXNativeTarget "galeria" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 4BRN73FCD8;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = zagoor.galeria;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		C48126B330953B0A006BE0EE /* Release configuration for PBXNativeTarget "galeria" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 4BRN73FCD8;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = zagoor.galeria;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		C48126B530953B0A006BE0EE /* Debug configuration for PBXNativeTarget "galeriaTests" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 4BRN73FCD8;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.6;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = zagoor.galeriaTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/galeria.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/galeria";
+			};
+			name = Debug;
+		};
+		C48126B630953B0A006BE0EE /* Release configuration for PBXNativeTarget "galeriaTests" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 4BRN73FCD8;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.6;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = zagoor.galeriaTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/galeria.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/galeria";
+			};
+			name = Release;
+		};
+		C48126B830953B0A006BE0EE /* Debug configuration for PBXNativeTarget "galeriaUITests" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 4BRN73FCD8;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = zagoor.galeriaUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = galeria;
+			};
+			name = Debug;
+		};
+		C48126B930953B0A006BE0EE /* Release configuration for PBXNativeTarget "galeriaUITests" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 4BRN73FCD8;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = zagoor.galeriaUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = galeria;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		C481268B30953B09006BE0EE /* Build configuration list for PBXProject "galeria" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C48126AF30953B0A006BE0EE /* Debug configuration for PBXProject "galeria" */,
+				C48126B030953B0A006BE0EE /* Release configuration for PBXProject "galeria" */,
+			);
+			defaultConfigurationName = Release;
+		};
+		C48126B130953B0A006BE0EE /* Build configuration list for PBXNativeTarget "galeria" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C48126B230953B0A006BE0EE /* Debug configuration for PBXNativeTarget "galeria" */,
+				C48126B330953B0A006BE0EE /* Release configuration for PBXNativeTarget "galeria" */,
+			);
+			defaultConfigurationName = Release;
+		};
+		C48126B430953B0A006BE0EE /* Build configuration list for PBXNativeTarget "galeriaTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C48126B530953B0A006BE0EE /* Debug configuration for PBXNativeTarget "galeriaTests" */,
+				C48126B630953B0A006BE0EE /* Release configuration for PBXNativeTarget "galeriaTests" */,
+			);
+			defaultConfigurationName = Release;
+		};
+		C48126B730953B0A006BE0EE /* Build configuration list for PBXNativeTarget "galeriaUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C48126B830953B0A006BE0EE /* Debug configuration for PBXNativeTarget "galeriaUITests" */,
+				C48126B930953B0A006BE0EE /* Release configuration for PBXNativeTarget "galeriaUITests" */,
+			);
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = C481268830953B09006BE0EE /* Project object */;
+	validationLevel = 1;
+}
