@@ -1,32 +1,32 @@
-//
-//  galeriaApp.swift
-//  galeria
-//
-//  Created by zagoor on 30/10/2026.
-//
-
 import SwiftUI
-import SwiftData
 
 @main
-struct galeriaApp: App {
-    var sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            Item.self,
-        ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-
-        do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
-        } catch {
-            fatalError("Could not create ModelContainer: \(error)")
-        }
-    }()
+struct GaleriaApp: App {
+    @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
+    @State private var model = GalleryModel()
+    @ObservedObject private var menuState = MenuState.shared
 
     var body: some Scene {
-        WindowGroup {
-            ContentView()
+        Window("Galeria", id: "main") {
+            RootView(appDelegate: appDelegate)
+                .environment(model)
+                .frame(minWidth: 760, minHeight: 520)
         }
-        .modelContainer(sharedModelContainer)
+        .defaultSize(width: 900, height: 1080)
+        .windowToolbarStyle(.unified)
+        .commands {
+            GalleryCommands(model: model, state: menuState.snapshot)
+        }
+
+        Window("Keyboard Shortcuts", id: "shortcuts") {
+            KeyboardShortcutsView()
+                .environment(model)
+        }
+        .defaultSize(width: 560, height: 700)
+
+        Settings {
+            SettingsView()
+                .environment(model)
+        }
     }
 }

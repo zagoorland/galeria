@@ -1,0 +1,9 @@
+.build/
+DerivedData/
+*.profraw
+*.xcresult
+.DS_Store
+xcuserdata/
+.agents/
+.claude/
+skills-lock.json
