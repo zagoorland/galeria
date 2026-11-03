@@ -25,6 +25,7 @@ struct ThumbnailServiceTests {
         let firstService = ThumbnailService(cacheDirectory: cache)
         let large = try #require(await firstService.thumbnail(for: item, maxPixel: 512))
         #expect(max(large.size.width, large.size.height) <= 512)
+        #expect(firstService.cachedImage(for: item, maxPixel: 512) != nil)
 
         // Remove the original so a successful smaller request can only come
         // from the cached variants, not a fresh decode of the source.

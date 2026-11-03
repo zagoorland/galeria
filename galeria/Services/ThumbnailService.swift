@@ -27,10 +27,34 @@ enum ThumbnailQuality: String, CaseIterable, Codable, Sendable, Identifiable {
     }
 }
 
+/// A thread-safe snapshot of the thumbnail memory cache. The grid checks it
+/// synchronously so cells that are already warm never flash a placeholder.
+final class ThumbnailMemoryCache: @unchecked Sendable {
+    private let cache = NSCache<NSString, NSImage>()
+
+    init(countLimit: Int, totalCostLimit: Int) {
+        cache.countLimit = countLimit
+        cache.totalCostLimit = totalCostLimit
+    }
+
+    func image(for key: String) -> NSImage? {
+        cache.object(forKey: key as NSString)
+    }
+
+    func set(_ image: NSImage, for key: String) {
+        let cost = Int(image.size.width * image.size.height * 4)
+        cache.setObject(image, forKey: key as NSString, cost: cost)
+    }
+
+    func removeAll() {
+        cache.removeAllObjects()
+    }
+}
+
 /// Loads downsampled thumbnails from ImageIO, caching them in memory and on disk.
 /// All image I/O runs off the main actor.
 actor ThumbnailService {
-    private let memoryCache = NSCache<NSString, NSImage>()
+    nonisolated let memoryCache: ThumbnailMemoryCache
     private let cacheDirectory: URL
     private let fileManager = FileManager.default
     private var inFlight: [String: Task<NSImage?, Never>] = [:]
@@ -42,16 +66,16 @@ actor ThumbnailService {
             .appendingPathComponent("Thumbnails", isDirectory: true)
             ?? FileManager.default.temporaryDirectory.appendingPathComponent("galeria-thumbnails", isDirectory: true)
         self.cacheDirectory = base
+        self.memoryCache = ThumbnailMemoryCache(countLimit: 2000,
+                                                totalCostLimit: 384 * 1024 * 1024)
         try? FileManager.default.createDirectory(at: base, withIntermediateDirectories: true)
-        memoryCache.countLimit = 2000
-        memoryCache.totalCostLimit = 256 * 1024 * 1024
     }
 
     /// Requests a thumbnail at approximately `maxPixel` pixels on the long edge.
     func thumbnail(for item: ImageItem, maxPixel: Int) async -> NSImage? {
         let pixelSize = Self.pixelBucket(maxPixel)
         let key = Self.cacheKey(for: item, pixelSize: pixelSize)
-        if let image = memoryCache.object(forKey: key as NSString) { return image }
+        if let image = memoryCache.image(for: key) { return image }
 
         // A larger variant is already in memory. Reuse it instead of falling
         // back to the original image just because the grid density changed.
@@ -88,13 +112,28 @@ actor ThumbnailService {
     }
 
     private func cache(_ image: NSImage, forKey key: String) {
-        let cost = Int(image.size.width * image.size.height * 4)
-        memoryCache.setObject(image, forKey: key as NSString, cost: cost)
+        memoryCache.set(image, for: key)
+    }
+
+    /// Synchronous lookup for a cell that is being configured on the main
+    /// thread. A larger cached variant is also acceptable: AppKit scales it
+    /// down to the tile without another decode.
+    nonisolated func cachedImage(for item: ImageItem, maxPixel: Int) -> NSImage? {
+        let pixelSize = Self.pixelBucket(maxPixel)
+        if let image = memoryCache.image(for: Self.cacheKey(for: item, pixelSize: pixelSize)) {
+            return image
+        }
+        for bucket in Self.pixelBuckets where bucket > pixelSize {
+            if let image = memoryCache.image(for: Self.cacheKey(for: item, pixelSize: bucket)) {
+                return image
+            }
+        }
+        return nil
     }
 
     private func largerMemoryThumbnail(for item: ImageItem, pixelSize: Int) -> NSImage? {
         for bucket in Self.pixelBuckets where bucket > pixelSize {
-            if let image = memoryCache.object(forKey: Self.cacheKey(for: item, pixelSize: bucket) as NSString) {
+            if let image = memoryCache.image(for: Self.cacheKey(for: item, pixelSize: bucket)) {
                 return image
             }
         }
@@ -108,10 +147,34 @@ actor ThumbnailService {
         }
     }
 
+
+    /// Warms disk and memory caches for a folder after the first screen is
+    /// visible. Processing in small concurrent batches keeps this from
+    /// monopolizing ImageIO while the grid remains interactive.
+    func warmCache(for items: [ImageItem], maxPixel: Int, concurrency: Int = 12) async {
+        guard !items.isEmpty else { return }
+        let batchSize = max(1, concurrency)
+        var index = 0
+        while index < items.count {
+            if Task.isCancelled { return }
+            let end = min(index + batchSize, items.count)
+            let batch = items[index..<end]
+            await withTaskGroup(of: Void.self) { group in
+                for item in batch {
+                    group.addTask { [weak self] in
+                        guard let self else { return }
+                        _ = await self.thumbnail(for: item, maxPixel: maxPixel)
+                    }
+                }
+            }
+            index = end
+        }
+    }
+
     func clearCache() {
         for task in inFlight.values { task.cancel() }
         inFlight.removeAll()
-        memoryCache.removeAllObjects()
+        memoryCache.removeAll()
         try? fileManager.removeItem(at: cacheDirectory)
         try? fileManager.createDirectory(at: cacheDirectory, withIntermediateDirectories: true)
     }

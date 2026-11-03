@@ -87,6 +87,8 @@ struct GalleryGridView: NSViewRepresentable {
         private var prefetchQueue: [URL] = []
         private var prefetchQueuedURLs: Set<URL> = []
         private var prefetchWorker: Task<Void, Never>?
+        private var warmTask: Task<Void, Never>?
+        private var warmSignature = ""
         private var lastMaxPixel = 0
         private var magnificationStartDensity = 3
         private var lastMagnification = 0.0
@@ -159,6 +161,8 @@ struct GalleryGridView: NSViewRepresentable {
             prefetchWorker = nil
             prefetchQueue.removeAll()
             prefetchQueuedURLs.removeAll()
+            warmTask?.cancel()
+            warmTask = nil
             collectionView.delegate = nil
             collectionView.prefetchDataSource = nil
             collectionView.interactionDelegate = nil
@@ -220,6 +224,27 @@ struct GalleryGridView: NSViewRepresentable {
                 syncSelection(selectedIDs, previous: oldSelected)
             }
             collectionView.interactionDelegate = self
+            scheduleThumbnailWarmup(sections: sections)
+        }
+
+        /// Desktop photo browsers warm a small local thumbnail cache in the
+        /// background. This makes a fast scrollbar jump hit disk-cached
+        /// thumbnails instead of decoding each original JPEG on demand.
+        private func scheduleThumbnailWarmup(sections: [GallerySection]) {
+            guard let model else { return }
+            let items = sections.flatMap(\.items)
+            guard !items.isEmpty else { return }
+            let pixel = thumbnailPixelSize(for: nil)
+            guard pixel > 0 else { return }
+            let signature = "\(model.folderStore.folderURL?.path ?? ""):\(items.count):\(pixel)"
+            guard signature != warmSignature else { return }
+            warmSignature = signature
+            warmTask?.cancel()
+            warmTask = Task { [weak self] in
+                try? await Task.sleep(for: .milliseconds(250))
+                guard !Task.isCancelled, let self, let model = self.model else { return }
+                await model.thumbnailService.warmCache(for: items, maxPixel: pixel)
+            }
         }
 
         private func applySnapshot(sections: [GallerySection], animated: Bool) {

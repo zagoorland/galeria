@@ -52,20 +52,25 @@ final class GalleryCollectionItem: NSCollectionViewItem {
             }
             loadTask?.cancel()
             loadedPixelSize = maxPixel
-            let requestedURL = item.url
-            let requestedModifiedAt = item.modifiedAt
-            loadTask = Task { [weak self] in
-                let image = await thumbnailService.thumbnail(for: item, maxPixel: maxPixel)
-                guard !Task.isCancelled,
-                      let self,
-                      self.currentURL == requestedURL,
-                      self.currentModifiedAt == requestedModifiedAt
-                else { return }
-                if let image {
-                    self.tileView.setThumbnail(image)
-                } else if self.tileView.displayedImage == nil {
-                    self.tileView.thumbnailMissing = true
-                    self.tileView.needsDisplay = true
+            if let cached = thumbnailService.cachedImage(for: item, maxPixel: maxPixel) {
+                tileView.setThumbnail(cached)
+                loadTask = nil
+            } else {
+                let requestedURL = item.url
+                let requestedModifiedAt = item.modifiedAt
+                loadTask = Task { [weak self] in
+                    let image = await thumbnailService.thumbnail(for: item, maxPixel: maxPixel)
+                    guard !Task.isCancelled,
+                          let self,
+                          self.currentURL == requestedURL,
+                          self.currentModifiedAt == requestedModifiedAt
+                    else { return }
+                    if let image {
+                        self.tileView.setThumbnail(image)
+                    } else if self.tileView.displayedImage == nil {
+                        self.tileView.thumbnailMissing = true
+                        self.tileView.needsDisplay = true
+                    }
                 }
             }
         }

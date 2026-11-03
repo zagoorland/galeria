@@ -97,7 +97,6 @@ final class GalleryTileView: NSView {
     func setThumbnail(_ image: NSImage?) {
         thumbnailMissing = image == nil
         displayedImage = image
-        let hadImage = imageView.layer?.contents != nil
         if let image {
             var proposedRect = NSRect(origin: .zero, size: image.size)
             if let cgImage = image.cgImage(forProposedRect: &proposedRect, context: nil, hints: nil) {
@@ -107,14 +106,6 @@ final class GalleryTileView: NSView {
             }
         } else {
             imageView.layer?.contents = nil
-        }
-        if image != nil, !hadImage {
-            let animation = CABasicAnimation(keyPath: "opacity")
-            animation.fromValue = 0.0
-            animation.toValue = 1.0
-            animation.duration = 0.16
-            animation.timingFunction = CAMediaTimingFunction(name: .easeOut)
-            imageView.layer?.add(animation, forKey: "fadeIn")
         }
         overlayView.needsDisplay = true
     }

@@ -44,17 +44,21 @@ The collection view reuses a fixed number of tile views; a tile's thumbnail task
 
 ### Fast-scroll stress (2,000 images, 10 columns)
 
-Tested with a cold 256px thumbnail cache and 2,000 images made from 58 unique source files. Jumping from the top of the grid directly to 80% of the folder showed a placeholder frame immediately after the jump and had every visible thumbnail painted by roughly **350 ms**. The previous frame at the top remained intact while the target cells loaded. Revisiting the same region with a warm cache was immediate.
+Tested with the actual 2,000-image sample collection (1280×853 JPEGs) in a 10-column grid.
 
-Three changes target this case:
+- After a folder opens, a background worker warms the 256px thumbnail cache. On this machine it completed all 2,000 thumbnails in about **2 seconds** at 12-way concurrency. Once warmed, dragging the scrollbar from the top to 80% painted every target tile immediately, with no placeholder frames.
+- If a jump lands in a genuinely cold region before warming has reached it, the target still resolves in roughly 250–350 ms. Removing the tile fade-in and looking up already-warm thumbnails synchronously on the main thread makes the warmed path feel instant.
+
+Changes that target this case:
 
 1. The visible tile keeps its previous thumbnail while a new pixel-size variant loads; it no longer clears to a placeholder on a density change.
 2. A smaller pixel-size request is fulfilled by downscaling a larger memory/disk thumbnail when one exists, instead of decoding the original image again.
 3. One cancellable prefetch worker replaces a separate detached task for every prefetched index path. Visible cells run at user-initiated priority, so they no longer compete with hundreds of invisible decodes during a fast scroll.
+4. A low-priority folder warm-up populates the disk and memory caches after the first screen is shown, and cells check the memory cache synchronously before starting an asynchronous load.
 
 ## Memory
 
-- Thumbnail `NSCache`: 192 MB memory cost limit; 900 item count limit.
+- Thumbnail `NSCache`: 384 MB memory cost limit; 2,000 item count limit.
 - Preview `NSCache`: 256 MB cost limit.
 - Preview decode: 4096 px maximum long edge.
 - Thumbnail disk cache: user-configurable limit, trimmed oldest-first.
