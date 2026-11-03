@@ -21,4 +21,16 @@ struct PreviewGestureTests {
         #expect(PreviewSwipeClassifier.action(horizontal: 55, vertical: 50) == nil)
         #expect(PreviewSwipeClassifier.action(horizontal: -55, vertical: 50) == nil)
     }
+
+    @Test("Paging requires the distance threshold and an adjacent image")
+    func pageThreshold() {
+        #expect(PreviewSwipeClassifier.pageAction(offset: -100, width: 1000,
+                                                   hasPrevious: true, hasNext: true) == nil)
+        #expect(PreviewSwipeClassifier.pageAction(offset: -220, width: 1000,
+                                                   hasPrevious: true, hasNext: true) == .next)
+        #expect(PreviewSwipeClassifier.pageAction(offset: 220, width: 1000,
+                                                   hasPrevious: true, hasNext: true) == .previous)
+        #expect(PreviewSwipeClassifier.pageAction(offset: -220, width: 1000,
+                                                   hasPrevious: true, hasNext: false) == nil)
+    }
 }

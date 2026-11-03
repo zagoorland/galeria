@@ -33,7 +33,7 @@ The stable automated suite is the Swift Testing suite in `galeriaTests`. This ch
 - Double-click and Return open Quick Preview; Space toggles; Escape closes.
 - Navigate with all four arrow keys; neighbors preload without a visible stall.
 - Pinch, scroll while zoomed, double-click, `+`, `−`, and `0`. Animated GIFs animate.
-- At fit scale, swipe right/left with two fingers to move to the previous/next image and swipe down to close.
+- At fit scale, swipe right/left with two fingers. The current photo should follow the gesture while the adjacent photo slides in, then snap to the next page. A short swipe should return to center. Swipe down to close. Arrow buttons should continue to switch instantly.
 - EXIF orientation is upright in preview, filmstrip, info, compare, and export.
 - Toggle filmstrip and Live Text. Select text in the image and copy it.
 - Open Info (`⌘I`), inspect all metadata, and click a GPS pin/Open in Maps.

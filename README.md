@@ -83,7 +83,7 @@ Every folder is accessed through a security-scoped bookmark. Read access is held
 
 - Opens as an in-app overlay with double-click or Return; Space toggles it; Escape closes it.
 - Arrow keys navigate the current sorted/filtered order. Neighbors ±2 are prefetched.
-- Trackpad gestures at fit scale: swipe right/left for the previous/next image, and swipe down to close. Once zoomed, two-finger scrolling pans instead.
+- Trackpad gestures at fit scale: swipe right/left to drag the current photo with your fingers and reveal the previous/next page; release snaps into place. Swipe down to close. Buttons and arrow keys still switch instantly. Once zoomed, two-finger scrolling pans instead.
 - Fit/100% zoom via mouse, `+`/`−`, `0`, and double-click; scroll pans while zoomed.
 - Animated GIFs play. EXIF orientation is applied consistently in the grid, filmstrip, preview, info panel, compare view, and export.
 - Filmstrip with current selection, toggleable with `F`.
@@ -195,7 +195,7 @@ xcodebuild test -project galeria.xcodeproj -scheme galeria \
   -destination 'platform=macOS,arch=arm64' CODE_SIGNING_ALLOWED=NO
 ```
 
-The 45 tests cover:
+The 46 tests cover:
 
 - natural name sorting, all other sort keys, filters, grouping, active chips
 - selection click/range/toggle semantics and post-delete advancement

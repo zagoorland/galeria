@@ -215,11 +215,14 @@ private struct PreviewTopBar: View {
 struct PreviewImageHost: View {
     @Environment(GalleryModel.self) private var model
     let item: ImageItem
-    @State private var payload: PreviewImagePayload?
-    @State private var isLoading = true
-    @State private var loadError: String?
+    @State private var payloads: [String: PreviewImagePayload] = [:]
+    @State private var failedIdentities: Set<String> = []
 
     var body: some View {
+        let identity = Self.identity(for: item)
+        let payload = payloads[identity]
+        let loadError = payload == nil && failedIdentities.contains(identity)
+
         ZStack {
             Color.black
             if let payload {
@@ -227,10 +230,12 @@ struct PreviewImageHost: View {
                     let fit = Self.fitScale(imageSize: payload.image.size, in: geometry.size)
                     PreviewCanvas(
                         image: payload.image,
-                        identity: "\(item.url.path)|\(item.modifiedAt.timeIntervalSince1970)",
+                        identity: identity,
                         fileName: item.name,
                         isAnimated: payload.isAnimated,
                         fileURL: item.url,
+                        previousImage: neighborPayload(offset: -1)?.image,
+                        nextImage: neighborPayload(offset: 1)?.image,
                         fitScale: fit,
                         isFitMode: Binding(get: { model.previewIsFit },
                                            set: { model.previewIsFit = $0 }),
@@ -255,22 +260,21 @@ struct PreviewImageHost: View {
                     .onChange(of: fit) { _, newValue in model.updatePreviewFitScale(newValue) }
                 }
                 .padding(10)
-                .opacity(isLoading ? 0.55 : 1)
             }
 
-            if isLoading {
+            if payload == nil && !loadError {
                 ProgressView()
                     .controlSize(.large)
                     .tint(.white)
                     .padding(14)
                     .background(Color.black.opacity(0.45), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
-            } else if let loadError {
+            } else if loadError {
                 VStack(spacing: 10) {
                     Image(systemName: "exclamationmark.triangle")
                         .font(.system(size: 30, weight: .light))
                     Text("Could Not Open Image")
                         .font(.headline)
-                    Text(loadError)
+                    Text("The file may be unreadable or its format is not supported.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
@@ -283,23 +287,73 @@ struct PreviewImageHost: View {
                 .foregroundStyle(.white)
             }
         }
-        .task(id: "\(item.url.path)|\(item.modifiedAt.timeIntervalSince1970)") {
-            isLoading = true
-            loadError = nil
-            payload = nil
-            let loaded = await model.previewImageService.image(for: item)
-            guard !Task.isCancelled else { return }
-            if let loaded {
-                payload = loaded
-                isLoading = false
-                model.preloadPreviewNeighbors()
-            } else {
-                isLoading = false
-                loadError = "The file may be unreadable or its format is not supported."
-            }
+        .task(id: identity) {
+            await loadCurrent(item, identity: identity)
+        }
+        .task(id: "\(identity)|neighbors") {
+            await loadNeighbors(around: item)
         }
         .accessibilityElement(children: .contain)
         .clipped()
+    }
+
+    private func loadCurrent(_ item: ImageItem, identity: String) async {
+        prunePayloads(around: item)
+        failedIdentities.remove(identity)
+        guard payloads[identity] == nil else { return }
+        let loaded = await model.previewImageService.image(for: item)
+        guard !Task.isCancelled else { return }
+        if let loaded {
+            payloads[identity] = loaded
+            model.preloadPreviewNeighbors()
+        } else {
+            failedIdentities.insert(identity)
+        }
+    }
+
+    /// Keep the immediate neighbors ready so a paging gesture has real images
+    /// to reveal instead of a blank page.
+    private func loadNeighbors(around item: ImageItem) async {
+        guard let index = model.previewItems.firstIndex(where: { $0.url == item.url }) else { return }
+        let allowed = identitiesAround(item)
+        for offset in [-2, -1, 1, 2] {
+            let neighborIndex = index + offset
+            guard neighborIndex >= 0, neighborIndex < model.previewItems.count else { continue }
+            let neighbor = model.previewItems[neighborIndex]
+            let neighborIdentity = Self.identity(for: neighbor)
+            guard allowed.contains(neighborIdentity), payloads[neighborIdentity] == nil else { continue }
+            if let loaded = await model.previewImageService.image(for: neighbor) {
+                guard !Task.isCancelled, identitiesAround(item).contains(neighborIdentity) else { return }
+                payloads[neighborIdentity] = loaded
+            }
+        }
+    }
+
+    private func prunePayloads(around item: ImageItem) {
+        let allowed = identitiesAround(item)
+        payloads = payloads.filter { allowed.contains($0.key) }
+        failedIdentities = failedIdentities.intersection(allowed)
+    }
+
+    private func identitiesAround(_ item: ImageItem) -> Set<String> {
+        guard let index = model.previewItems.firstIndex(where: { $0.url == item.url }) else {
+            return [Self.identity(for: item)]
+        }
+        let lower = max(0, index - 2)
+        let upper = min(model.previewItems.count - 1, index + 2)
+        guard lower <= upper else { return [Self.identity(for: item)] }
+        return Set(model.previewItems[lower...upper].map(Self.identity(for:)))
+    }
+
+    private func neighborPayload(offset: Int) -> PreviewImagePayload? {
+        guard let index = model.previewItems.firstIndex(where: { $0.url == item.url }) else { return nil }
+        let neighborIndex = index + offset
+        guard neighborIndex >= 0, neighborIndex < model.previewItems.count else { return nil }
+        return payloads[Self.identity(for: model.previewItems[neighborIndex])]
+    }
+
+    nonisolated private static func identity(for item: ImageItem) -> String {
+        "\(item.url.path)|\(item.modifiedAt.timeIntervalSince1970)"
     }
 
     private static func fitScale(imageSize: NSSize, in available: CGSize) -> CGFloat {
