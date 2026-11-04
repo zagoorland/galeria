@@ -2,6 +2,7 @@ import SwiftUI
 
 struct CullView: View {
     @Environment(GalleryModel.self) private var model
+    @State private var isPaging = false
 
     var body: some View {
         @Bindable var model = model
@@ -60,7 +61,7 @@ struct CullView: View {
                     Rectangle().fill(.white.opacity(0.10)).frame(height: 1)
                 }
 
-                PreviewImageHost(item: item)
+                PreviewImageHost(item: item, isPaging: $isPaging)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
 
                 HStack(spacing: 10) {

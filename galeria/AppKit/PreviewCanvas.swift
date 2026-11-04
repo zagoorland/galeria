@@ -1,4 +1,5 @@
 import AppKit
+import QuartzCore
 import SwiftUI
 import VisionKit
 
@@ -8,7 +9,21 @@ enum PreviewSwipeAction: Equatable {
     case close
 }
 
+enum PreviewSwipeAxis: Equatable {
+    case horizontal
+    case vertical
+}
+
 enum PreviewSwipeClassifier {
+    static func axis(horizontal x: CGFloat, vertical y: CGFloat) -> PreviewSwipeAxis? {
+        let x = abs(x)
+        let y = abs(y)
+        guard max(x, y) >= 12 else { return nil }
+        if x >= y * 1.1 { return .horizontal }
+        if y >= x * 1.35 { return .vertical }
+        return nil
+    }
+
     static func action(horizontal x: CGFloat, vertical y: CGFloat) -> PreviewSwipeAction? {
         if abs(x) > max(44, abs(y) * 1.35) {
             return x < 0 ? .next : .previous
@@ -22,12 +37,20 @@ enum PreviewSwipeClassifier {
     static func pageAction(
         offset: CGFloat,
         width: CGFloat,
+        velocity: CGFloat,
         hasPrevious: Bool,
         hasNext: Bool
     ) -> PreviewSwipeAction? {
         let threshold = max(44, max(width, 1) * 0.2)
         if offset <= -threshold, hasNext { return .next }
         if offset >= threshold, hasPrevious { return .previous }
+
+        // A quick flick should page even when the finger only travelled a
+        // short distance, matching the feel of a native pager.
+        if abs(offset) >= 56, abs(velocity) >= 1_200 {
+            if velocity < 0, hasNext { return .next }
+            if velocity > 0, hasPrevious { return .previous }
+        }
         return nil
     }
 }
@@ -50,6 +73,7 @@ struct PreviewCanvas: NSViewRepresentable {
     var onZoomChanged: (() -> Void)?
     var onDragOperation: ((NSDragOperation) -> Void)?
     var onSwipe: ((PreviewSwipeAction) -> Void)?
+    var onPagingChanged: ((Bool) -> Void)?
 
     func makeCoordinator() -> Coordinator {
         Coordinator(self)
@@ -68,6 +92,9 @@ struct PreviewCanvas: NSViewRepresentable {
         }
         view.onSwipe = { [weak coordinator = context.coordinator] action in
             coordinator?.parent.onSwipe?(action)
+        }
+        view.onPagingChanged = { [weak coordinator = context.coordinator] isPaging in
+            coordinator?.parent.onPagingChanged?(isPaging)
         }
         return view
     }
@@ -107,6 +134,7 @@ final class PreviewCanvasView: NSView, NSDraggingSource {
     var onZoomChanged: ((CGFloat, Bool) -> Void)?
     var onDragOperation: ((NSDragOperation) -> Void)?
     var onSwipe: ((PreviewSwipeAction) -> Void)?
+    var onPagingChanged: ((Bool) -> Void)?
 
     private let imageView = NonInteractiveImageView()
     private let previousImageView = NonInteractiveImageView()
@@ -121,9 +149,17 @@ final class PreviewCanvasView: NSView, NSDraggingSource {
     private var previousImage: NSImage?
     private var nextImage: NSImage?
     private var pageOffsetX: CGFloat = 0
-    private var swipeAxis: SwipeAxis?
+    private var swipeAxis: PreviewSwipeAxis?
+    private var swipeStartTime: TimeInterval = 0
     private var pageCommitPending = false
-    private var pageSnapToken = UUID()
+    private var pageAnimationTimer: Timer?
+    private var pageAnimationStartOffset: CGFloat = 0
+    private var pageAnimationTargetOffset: CGFloat = 0
+    private var pageAnimationStartTime: TimeInterval = 0
+    private var pageAnimationDuration: TimeInterval = 0
+    private var pageAnimationAction: PreviewSwipeAction?
+    private var isPageAnimating = false
+    private var isIgnoringSwipe = false
     private var fitScale: CGFloat = 1
     private var isFitMode = true
     private var absoluteScale: CGFloat = 1
@@ -135,11 +171,6 @@ final class PreviewCanvasView: NSView, NSDraggingSource {
     private var swipeAccumulatedX: CGFloat = 0
     private var swipeAccumulatedY: CGFloat = 0
     private var isTrackingSwipe = false
-
-    private enum SwipeAxis: Equatable {
-        case horizontal
-        case vertical
-    }
 
     override init(frame frameRect: NSRect) {
         super.init(frame: frameRect)
@@ -181,6 +212,7 @@ final class PreviewCanvasView: NSView, NSDraggingSource {
 
     deinit {
         analysisTask?.cancel()
+        pageAnimationTimer?.invalidate()
         removeScrollMonitor()
     }
 
@@ -202,6 +234,7 @@ final class PreviewCanvasView: NSView, NSDraggingSource {
 
     func prepareForRemoval() {
         analysisTask?.cancel()
+        cancelPageAnimation(resetOffset: false)
         removeScrollMonitor()
     }
 
@@ -224,13 +257,12 @@ final class PreviewCanvasView: NSView, NSDraggingSource {
             self.fileName = fileName
             self.fileURL = fileURL
             pan = .zero
-            pageSnapToken = UUID()
-            for view in [imageView, previousImageView, nextImageView] {
-                view.layer?.removeAnimation(forKey: "pageSnap")
-            }
+            cancelPageAnimation(resetOffset: false)
             pageOffsetX = 0
             pageCommitPending = false
+            isIgnoringSwipe = false
             resetSwipeTracking()
+            onPagingChanged?(false)
             imageView.image = image
             imageView.animates = isAnimated
             setAccessibilityLabel("\(fileName), image preview")
@@ -348,33 +380,51 @@ final class PreviewCanvasView: NSView, NSDraggingSource {
     /// Zoomed images keep using the scroll stream for panning.
     private func handleSwipeScroll(_ event: NSEvent) -> Bool {
         guard isFitMode, event.hasPreciseScrollingDeltas else { return false }
-        if !event.momentumPhase.isEmpty { return true }
-
         let phase = event.phase
+        // Ignore the momentum tail, but do not ignore an ended event merely
+        // because macOS attached a momentum phase to it.
+        if phase.isEmpty, !event.momentumPhase.isEmpty { return true }
         if phase.contains(.mayBegin) { return true }
+
         if phase.contains(.began) {
+            if isPageAnimating || pageCommitPending {
+                isIgnoringSwipe = true
+                return true
+            }
+            isIgnoringSwipe = false
             resetSwipeTracking()
             pageOffsetX = 0
             pageCommitPending = false
             isTrackingSwipe = true
+            swipeStartTime = CACurrentMediaTime()
             updateLiveTextVisibility()
+        }
+        if isIgnoringSwipe {
+            if phase.contains(.ended) || phase.contains(.cancelled) {
+                isIgnoringSwipe = false
+            }
+            return true
         }
         guard isTrackingSwipe else { return false }
 
         let direction: CGFloat = event.isDirectionInvertedFromDevice ? 1 : -1
-        swipeAccumulatedX += event.scrollingDeltaX * direction
-        swipeAccumulatedY += event.scrollingDeltaY * direction
+        let deltaX = event.scrollingDeltaX * direction
+        let deltaY = event.scrollingDeltaY * direction
+        swipeAccumulatedX += deltaX
+        swipeAccumulatedY += deltaY
 
-        if swipeAxis == nil {
-            let x = abs(swipeAccumulatedX)
-            let y = abs(swipeAccumulatedY)
-            if max(x, y) > 8 {
-                swipeAxis = x >= y ? .horizontal : .vertical
-            }
+        if swipeAxis == nil,
+           let axis = PreviewSwipeClassifier.axis(horizontal: swipeAccumulatedX,
+                                                  vertical: swipeAccumulatedY) {
+            swipeAxis = axis
+            if axis == .horizontal { onPagingChanged?(true) }
         }
 
         if swipeAxis == .horizontal {
-            pageOffsetX = boundedPageOffset(for: swipeAccumulatedX)
+            // Apply deltas incrementally. If a neighbor image finishes loading
+            // during the gesture, its page can resume smoothly instead of
+            // jumping to the entire accumulated distance at once.
+            pageOffsetX = boundedPageOffset(for: pageOffsetX + deltaX)
             layoutImage()
         }
 
@@ -405,9 +455,12 @@ final class PreviewCanvasView: NSView, NSDraggingSource {
 
         if swipeAxis == .horizontal {
             let width = max(bounds.width, 1)
+            let elapsed = max(CACurrentMediaTime() - swipeStartTime, 0.01)
+            let velocity = swipeAccumulatedX / elapsed
             let action = PreviewSwipeClassifier.pageAction(
                 offset: pageOffsetX,
                 width: width,
+                velocity: velocity,
                 hasPrevious: previousImage != nil,
                 hasNext: nextImage != nil
             )
@@ -443,43 +496,101 @@ final class PreviewCanvasView: NSView, NSDraggingSource {
         snapPage(to: 0, action: nil)
     }
 
+    /// Drives snapping from the run loop rather than layering a Core Animation
+    /// on top of the frames. SwiftUI can update the canvas during a gesture
+    /// (for example when a neighbor preview finishes loading); a model-driven
+    /// timer keeps every layout pass at the same interpolated offset.
     private func snapPage(to targetOffset: CGFloat, action: PreviewSwipeAction?) {
         let width = max(bounds.width, 1)
         let target = min(max(targetOffset, -width), width)
-        let oldFrames = [imageView.frame, previousImageView.frame, nextImageView.frame]
-        pageOffsetX = target
-        layoutImage()
-        let newFrames = [imageView.frame, previousImageView.frame, nextImageView.frame]
-        let token = UUID()
-        pageSnapToken = token
-        let duration: TimeInterval = action == nil ? 0.20 : 0.23
-        let timing = CAMediaTimingFunction(name: .easeOut)
-        let views = [imageView, previousImageView, nextImageView]
-        for (index, view) in views.enumerated() {
-            guard !view.isHidden, let layer = view.layer else { continue }
-            let oldX = oldFrames[index].midX
-            let newX = newFrames[index].midX
-            guard abs(oldX - newX) > 0.01 else { continue }
-            let animation = CABasicAnimation(keyPath: "position.x")
-            animation.fromValue = oldX
-            animation.toValue = newX
-            animation.duration = duration
-            animation.timingFunction = timing
-            layer.add(animation, forKey: "pageSnap")
-        }
-        DispatchQueue.main.asyncAfter(deadline: .now() + duration) { [weak self] in
-            guard let self, self.pageSnapToken == token else { return }
+        guard abs(target - pageOffsetX) > 0.5 else {
             if let action {
-                self.pageCommitPending = true
-                self.updateLiveTextVisibility()
-                self.onSwipe?(action)
+                pageCommitPending = true
+                updateLiveTextVisibility()
+                onSwipe?(action)
             } else {
-                self.pageOffsetX = 0
-                self.pageCommitPending = false
-                self.resetSwipeTracking()
-                self.layoutImage()
-                self.updateLiveTextVisibility()
+                pageOffsetX = 0
+                pageCommitPending = false
+                resetSwipeTracking()
+                layoutImage()
+                updateLiveTextVisibility()
+                onPagingChanged?(false)
             }
+            return
+        }
+
+        pageAnimationTimer?.invalidate()
+        pageAnimationStartOffset = pageOffsetX
+        pageAnimationTargetOffset = target
+        pageAnimationStartTime = CACurrentMediaTime()
+        pageAnimationDuration = action == nil ? 0.19 : 0.23
+        pageAnimationAction = action
+        isPageAnimating = true
+        pageCommitPending = false
+        updateLiveTextVisibility()
+
+        let timer = Timer(timeInterval: 1.0 / 120.0, repeats: true) { [weak self] timer in
+            guard let self else {
+                timer.invalidate()
+                return
+            }
+            self.stepPageAnimation()
+        }
+        timer.tolerance = 0.001
+        RunLoop.main.add(timer, forMode: .common)
+        pageAnimationTimer = timer
+    }
+
+    private func stepPageAnimation() {
+        guard isPageAnimating else {
+            pageAnimationTimer?.invalidate()
+            pageAnimationTimer = nil
+            return
+        }
+        let elapsed = CACurrentMediaTime() - pageAnimationStartTime
+        let progress = min(1, max(0, elapsed / max(pageAnimationDuration, 0.001)))
+        let eased = 1 - pow(1 - progress, 3)
+        pageOffsetX = pageAnimationStartOffset
+            + (pageAnimationTargetOffset - pageAnimationStartOffset) * eased
+        layoutImage()
+        if progress >= 1 {
+            finishPageAnimation()
+        }
+    }
+
+    private func finishPageAnimation() {
+        pageAnimationTimer?.invalidate()
+        pageAnimationTimer = nil
+        isPageAnimating = false
+        pageOffsetX = pageAnimationTargetOffset
+        layoutImage()
+        let action = pageAnimationAction
+        pageAnimationAction = nil
+        if let action {
+            pageCommitPending = true
+            updateLiveTextVisibility()
+            onSwipe?(action)
+        } else {
+            pageOffsetX = 0
+            pageCommitPending = false
+            resetSwipeTracking()
+            layoutImage()
+            updateLiveTextVisibility()
+            onPagingChanged?(false)
+        }
+    }
+
+    private func cancelPageAnimation(resetOffset: Bool) {
+        pageAnimationTimer?.invalidate()
+        pageAnimationTimer = nil
+        isPageAnimating = false
+        pageAnimationAction = nil
+        if resetOffset {
+            pageOffsetX = 0
+            pageCommitPending = false
+            layoutImage()
+            updateLiveTextVisibility()
+            onPagingChanged?(false)
         }
     }
 
@@ -495,31 +606,22 @@ final class PreviewCanvasView: NSView, NSDraggingSource {
             || isTrackingSwipe
             || pageOffsetX != 0
             || pageCommitPending
+            || isPageAnimating
     }
 
-    /// Native swipe events use the documented direction: positive X is a left
-    /// swipe, negative Y is down. They get a short slide rather than a cut.
+    /// Native swipe events use the documented direction for swipe-down. The
+    /// horizontal paging path is deliberately driven only by the continuous
+    /// trackpad scroll stream so a single gesture cannot commit twice.
     override func swipe(with event: NSEvent) {
         guard isFitMode else {
             super.swipe(with: event)
             return
         }
-        if abs(event.deltaX) > abs(event.deltaY), event.deltaX != 0 {
-            let action: PreviewSwipeAction = event.deltaX > 0 ? .next : .previous
-            performDiscretePage(action)
-        } else if event.deltaY < 0 {
+        if abs(event.deltaY) >= abs(event.deltaX), event.deltaY < 0 {
             onSwipe?(.close)
         } else {
             super.swipe(with: event)
         }
-    }
-
-    private func performDiscretePage(_ action: PreviewSwipeAction) {
-        let width = max(bounds.width, 1)
-        let hasTarget = action == .next ? nextImage != nil : previousImage != nil
-        guard hasTarget else { return }
-        pageOffsetX = 0
-        snapPage(to: action == .next ? -width : width, action: action)
     }
 
     @objc private func handleMagnification(_ gesture: NSMagnificationGestureRecognizer) {

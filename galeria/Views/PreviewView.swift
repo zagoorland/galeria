@@ -3,6 +3,7 @@ import SwiftUI
 
 struct PreviewView: View {
     @Environment(GalleryModel.self) private var model
+    @State private var isPaging = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -11,8 +12,11 @@ struct PreviewView: View {
                     .zIndex(2)
                 HStack(spacing: 0) {
                     ZStack {
-                        PreviewImageHost(item: item)
+                        PreviewImageHost(item: item, isPaging: $isPaging)
                         PreviewNavigationArrows(item: item)
+                            .opacity(isPaging ? 0 : 1)
+                            .allowsHitTesting(!isPaging)
+                            .animation(.easeOut(duration: 0.12), value: isPaging)
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .clipped()
@@ -48,6 +52,9 @@ struct PreviewView: View {
         .animation(.easeInOut(duration: 0.18), value: model.previewShowFilmstrip)
         .onExitCommand {
             model.closePreview()
+        }
+        .onChange(of: model.previewURL) { _, _ in
+            isPaging = false
         }
         .accessibilityIdentifier("preview.overlay")
     }
@@ -215,6 +222,7 @@ private struct PreviewTopBar: View {
 struct PreviewImageHost: View {
     @Environment(GalleryModel.self) private var model
     let item: ImageItem
+    @Binding var isPaging: Bool
     @State private var payloads: [String: PreviewImagePayload] = [:]
     @State private var failedIdentities: Set<String> = []
 
@@ -254,6 +262,9 @@ struct PreviewImageHost: View {
                             case .close:
                                 model.closePreview()
                             }
+                        },
+                        onPagingChanged: { paging in
+                            isPaging = paging
                         }
                     )
                     .onAppear { model.updatePreviewFitScale(fit) }

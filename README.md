@@ -195,7 +195,7 @@ xcodebuild test -project galeria.xcodeproj -scheme galeria \
   -destination 'platform=macOS,arch=arm64' CODE_SIGNING_ALLOWED=NO
 ```
 
-The 46 tests cover:
+The 48 tests cover:
 
 - natural name sorting, all other sort keys, filters, grouping, active chips
 - selection click/range/toggle semantics and post-delete advancement

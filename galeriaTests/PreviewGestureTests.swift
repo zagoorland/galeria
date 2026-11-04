@@ -24,13 +24,29 @@ struct PreviewGestureTests {
 
     @Test("Paging requires the distance threshold and an adjacent image")
     func pageThreshold() {
-        #expect(PreviewSwipeClassifier.pageAction(offset: -100, width: 1000,
+        #expect(PreviewSwipeClassifier.pageAction(offset: -100, width: 1000, velocity: 0,
                                                    hasPrevious: true, hasNext: true) == nil)
-        #expect(PreviewSwipeClassifier.pageAction(offset: -220, width: 1000,
+        #expect(PreviewSwipeClassifier.pageAction(offset: -220, width: 1000, velocity: 0,
                                                    hasPrevious: true, hasNext: true) == .next)
-        #expect(PreviewSwipeClassifier.pageAction(offset: 220, width: 1000,
+        #expect(PreviewSwipeClassifier.pageAction(offset: 220, width: 1000, velocity: 0,
                                                    hasPrevious: true, hasNext: true) == .previous)
-        #expect(PreviewSwipeClassifier.pageAction(offset: -220, width: 1000,
+        #expect(PreviewSwipeClassifier.pageAction(offset: -220, width: 1000, velocity: 0,
                                                    hasPrevious: true, hasNext: false) == nil)
+    }
+
+    @Test("A fast short flick pages even below the distance threshold")
+    func flickThreshold() {
+        #expect(PreviewSwipeClassifier.pageAction(offset: -80, width: 1000, velocity: -1500,
+                                                   hasPrevious: true, hasNext: true) == .next)
+        #expect(PreviewSwipeClassifier.pageAction(offset: -80, width: 1000, velocity: -300,
+                                                   hasPrevious: true, hasNext: true) == nil)
+    }
+
+    @Test("The gesture locks to a clear horizontal or vertical axis")
+    func axisLock() {
+        #expect(PreviewSwipeClassifier.axis(horizontal: 40, vertical: 5) == .horizontal)
+        #expect(PreviewSwipeClassifier.axis(horizontal: 5, vertical: 40) == .vertical)
+        #expect(PreviewSwipeClassifier.axis(horizontal: 20, vertical: 20) == nil)
+        #expect(PreviewSwipeClassifier.axis(horizontal: 5, vertical: 5) == nil)
     }
 }
