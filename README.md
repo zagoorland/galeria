@@ -36,6 +36,17 @@ xcodebuild -project galeria.xcodeproj -scheme galeria \
   -destination 'platform=macOS,arch=arm64' build
 ```
 
+### Automated GitHub releases
+
+Pushing a version tag that starts with `v` builds Galeria and creates a GitHub Release with a ZIP of the macOS app attached:
+
+```bash
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+The workflow builds an unsigned app. Developer ID signing and notarization are not configured, so macOS may warn users when they first open a downloaded build.
+
 ### Sandbox
 
 The app is sandboxed. Entitlements are in `galeria/galeria.entitlements`:
