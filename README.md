@@ -4,9 +4,11 @@ A fast, keyboard-driven image browser for macOS. Pick a folder, browse it as an 
 
 Galeria is built with SwiftUI for the shell and an `NSCollectionView` for the grid. It uses only Apple frameworks and stores preferences in `UserDefaults`; there is no database and no network service for library data.
 
-![Galeria grid](docs/screenshots/grid-dark.png)
+![Galeria grid](docs/screenshots/grid-dark.jpg)
 
-![Quick Preview with filmstrip and Finder tag overlays](docs/screenshots/preview.png)
+![Quick Preview with filmstrip](docs/screenshots/preview.jpg)
+
+*Screenshots use photos from the `sample-images-main` test set.*
 
 ## Requirements
 
